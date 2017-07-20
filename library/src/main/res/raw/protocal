@@ -1,0 +1,8 @@
+# Write file:
+1. Write size(byte count) of the file.
+2. write byte content of the file.
+
+// Components
+
+1. Channel, hold InputStream and OutputStream for a socket connection.
+
