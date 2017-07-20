@@ -2,6 +2,8 @@ package dev.nick.library.nio;
 
 import android.support.annotation.NonNull;
 
+import com.google.common.io.Closer;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -15,6 +17,8 @@ public class SenderChannelInitializer implements ChannelInitializer {
     private String host;
     private int port;
 
+    private Closer closer = Closer.create();
+
     public static SenderChannelInitializer localhost() {
         return new SenderChannelInitializer("localhost", 8888);
     }
@@ -27,10 +31,15 @@ public class SenderChannelInitializer implements ChannelInitializer {
     @NonNull
     @Override
     public Channel initialize() throws IOException {
-        Socket socket = new Socket(host, port);
+        Socket socket = closer.register(new Socket(host, port));
         Channel channel = new Channel();
-        channel.setInputStream(socket.getInputStream());
-        channel.setOutputStream(socket.getOutputStream());
+        channel.setInputStream(closer.register(socket.getInputStream()));
+        channel.setOutputStream(closer.register(socket.getOutputStream()));
         return channel;
+    }
+
+    @Override
+    public void teardown() throws IOException {
+        closer.close();
     }
 }

@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.util.List;
 
 import dev.nick.library.common.SharedExecutor;
-import dev.nick.library.io.FileReader;
-import dev.nick.library.io.FileWriter;
+import dev.nick.library.io.DataReader;
+import dev.nick.library.io.DateWriter;
 import dev.nick.library.loader.Loader;
-import dev.nick.library.loader.LoaderListenerAdapter;
-import dev.nick.library.loader.LoaderListenerMainThreadDelegate;
+import dev.nick.library.loader.LoaderListener;
 import dev.nick.library.model.Category;
 import dev.nick.library.model.android.AndroidData;
+import dev.nick.library.model.android.FileBasedData;
 import dev.nick.library.model.android.SystemLoaderSource;
 import dev.nick.library.nio.Channel;
 import dev.nick.library.nio.ChannelInitializer;
@@ -60,22 +60,38 @@ public class MigraterTest {
                         return false;
                     }
                 })
-                .loaderListener(new LoaderListenerMainThreadDelegate<>(new LoaderListenerAdapter<AndroidData>() {
+                .loaderListener(new LoaderListener<AndroidData>() {
+                    @Override
+                    public void onStartLoading() {
+
+                    }
+
                     @Override
                     public void onLoadingComplete(@NonNull List<AndroidData> dataList) {
-                        super.onLoadingComplete(dataList);
                         Logger.d("Load complete.");
+
+                        for (AndroidData data : dataList) {
+                            try {
+                                stream((FileBasedData) data);
+                            } catch (IOException e) {
+                                fail(e.getMessage());
+                            }
+                        }
                     }
-                }))
+
+                    @Override
+                    public void onLoadingFailure(Throwable err) {
+                        Logger.e(err, "Load onLoadingFailure");
+                    }
+                })
                 .future()
                 .execute()
                 .getSafety();
 
         Logger.d("List:%s", list);
+    }
 
-
-        final String sourcePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "test.mp4";
-
+    private void stream(final FileBasedData fileBasedData) throws IOException {
 
         final ChannelInitializer serverChannelInitializer = ReceiverChannelInitializer.localhost();
 
@@ -85,28 +101,27 @@ public class MigraterTest {
                 try {
                     Channel source = serverChannelInitializer.initialize();
                     Logger.d("Server initialized");
-                    new FileWriter(sourcePath).writeTo(source.getOutputStream(), null);
+                    new DateWriter(fileBasedData.asByteSource(),
+                            fileBasedData.getCategory(),
+                            fileBasedData.getDisplayName(),
+                            "Hello world!")
+                            .writeTo(source.getOutputStream(), null);
                     Logger.d("Server write");
+                    serverChannelInitializer.teardown();
                 } catch (IOException e) {
                     fail(e.getMessage());
                 }
             }
         });
 
-        startSink();
-
-        while (true) {
-        }
-    }
-
-    private void startSink() throws IOException {
         Logger.d("startSink");
-        String sinkPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "test2.mp4";
+        String sinkPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "testapps";
         ChannelInitializer socketChannelInitializer = SenderChannelInitializer.localhost();
         Channel sink = socketChannelInitializer.initialize();
         Logger.d("sink initialized");
-        new FileReader(sinkPath).readFrom(sink.getInputStream(), null);
+        new DataReader(sinkPath).readFrom(sink.getInputStream(), null);
         Logger.d("sink read");
+        socketChannelInitializer.teardown();
     }
 
 }

@@ -6,7 +6,7 @@ import dev.nick.library.model.Data;
  * Created by Tornaco on 2017/7/18.
  * Licensed with Apache.
  */
-public class AndroidData implements Data {
+public abstract class AndroidData implements Data {
     private String displayName;
 
     public String getDisplayName() {

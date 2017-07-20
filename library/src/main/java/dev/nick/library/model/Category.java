@@ -2,13 +2,13 @@ package dev.nick.library.model;
 
 import android.support.annotation.NonNull;
 
-import dev.nick.library.model.android.AndroidData;
-import dev.nick.library.model.android.SystemLoaderSource;
 import dev.nick.library.loader.AppLoaderFile;
 import dev.nick.library.loader.AppLoaderSystem;
 import dev.nick.library.loader.Loader;
 import dev.nick.library.loader.LoaderProvider;
 import dev.nick.library.loader.LoaderSource;
+import dev.nick.library.model.android.AndroidData;
+import dev.nick.library.model.android.SystemLoaderSource;
 
 /**
  * Created by Tornaco on 2017/7/18.
@@ -27,4 +27,10 @@ public enum Category implements LoaderProvider<AndroidData> {
         }
     };
 
+    public static Category valueOf(int i) {
+        for (Category c : values()) {
+            if (c.ordinal() == i) return c;
+        }
+        throw new IllegalArgumentException("Bad ordinal:" + i);
+    }
 }

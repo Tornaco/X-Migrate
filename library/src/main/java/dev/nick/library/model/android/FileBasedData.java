@@ -8,23 +8,21 @@ import com.google.common.io.Files;
 import java.io.File;
 
 import dev.nick.library.io.ByteSourcable;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Created by Tornaco on 2017/7/19.
  * Licensed with Apache.
  */
-
-public class FileBasedData extends AndroidData implements ByteSourcable {
+@Getter
+@Setter
+@ToString
+public abstract class FileBasedData extends AndroidData implements ByteSourcable {
 
     private String filePath;
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
+    private long fileSize;
 
     @NonNull
     @Override

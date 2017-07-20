@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+import dev.nick.library.common.ContextWirable;
 import dev.nick.library.model.Data;
 
 /**
@@ -12,7 +13,7 @@ import dev.nick.library.model.Data;
  * Licensed with Apache.
  */
 
-public interface Loader<T extends Data> {
+public interface Loader<T extends Data> extends ContextWirable {
     @NonNull
     List<T> load( @Nullable Filter<T> filter);
 

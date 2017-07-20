@@ -35,7 +35,7 @@ public class Migrater {
     }
 
     public LoadRequest.LoadRequestBuilder load(Category category) {
-        return LoadRequest.builder(category);
+        return LoadRequest.builder(context, category);
     }
 
     public StreamRequest.StreamRequestBuilder stream(FileBasedData fileBasedData) {
@@ -49,15 +49,16 @@ public class Migrater {
         private Loader.Filter<AndroidData> filter;
         private LoaderListener<AndroidData> loaderListener;
 
-        public LoadRequest(Category category, LoaderSource loaderSource, Loader.Filter<AndroidData> filter, LoaderListener<AndroidData> loaderListener) {
+        public LoadRequest(Category category, LoaderSource loaderSource, Loader.Filter<AndroidData> filter,
+                           LoaderListener<AndroidData> loaderListener) {
             this.category = category;
             this.loaderSource = loaderSource;
             this.filter = filter;
             this.loaderListener = loaderListener;
         }
 
-        public static LoadRequestBuilder builder(Category category) {
-            return new LoadRequestBuilder(category);
+        public static LoadRequestBuilder builder(Context context, Category category) {
+            return new LoadRequestBuilder(context, category);
         }
 
         public static class LoadRequestBuilder {
@@ -66,9 +67,11 @@ public class Migrater {
             private LoaderSource loaderSource;
             private Loader.Filter<AndroidData> filter;
             private LoaderListener<AndroidData> loaderListener;
+            private Context context;
 
-            LoadRequestBuilder(Category category) {
+            LoadRequestBuilder(Context context, Category category) {
                 this.category = category;
+                this.context = context;
             }
 
             public LoadRequest.LoadRequestBuilder source(LoaderSource loaderSource) {
@@ -88,13 +91,13 @@ public class Migrater {
 
             public LoadRequestTask future() {
                 LoadRequest loadRequest = new LoadRequest(category, loaderSource, filter, loaderListener);
-                return new LoadRequestTask(loadRequest);
+                return new LoadRequestTask(loadRequest, context);
             }
         }
 
         public static class LoadRequestTask extends FutureTask<List<AndroidData>> {
 
-            LoadRequestTask(final LoadRequest request) {
+            LoadRequestTask(final LoadRequest request, final Context context) {
                 super(new Callable<List<AndroidData>>() {
                     @Override
                     public List<AndroidData> call() throws Exception {
@@ -103,6 +106,7 @@ public class Migrater {
                         }
                         Category c = request.category;
                         Loader<AndroidData> loader = c.getLoader(request.loaderSource);
+                        loader.wireContext(context);
                         List<AndroidData> dataList = Lists.newArrayList();
                         try {
                             dataList = loader.load(request.filter);
@@ -154,7 +158,6 @@ public class Migrater {
             private StreamRequestBuilder(FileBasedData fileBasedData) {
                 this.fileBasedData = fileBasedData;
             }
-
 
         }
     }

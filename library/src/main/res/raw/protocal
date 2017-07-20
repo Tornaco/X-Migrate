@@ -1,5 +1,10 @@
 # Write file:
+
+| SIZE(long) | NAME-LENGTH(int) | NAME | CATEGORY(int) | EXTRA-LENGTH | EXTRA | CONTENT |
+
 1. Write size(byte count) of the file.
+2. Write name length of this file.
+3. Write name content of this file.
 2. write byte content of the file.
 
 // Components

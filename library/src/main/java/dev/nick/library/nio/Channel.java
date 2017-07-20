@@ -1,14 +1,18 @@
 package dev.nick.library.nio;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import dev.nick.library.util.Closer;
 
 /**
  * Created by Tornaco on 2017/7/19.
  * Licensed with Apache.
  */
 
-public class Channel {
+public class Channel implements Closeable {
 
     private InputStream inputStream;
     private OutputStream outputStream;
@@ -27,5 +31,11 @@ public class Channel {
 
     public void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
+    }
+
+    @Override
+    public void close() throws IOException {
+        Closer.closeQuietly(getInputStream());
+        Closer.closeQuietly(getOutputStream());
     }
 }

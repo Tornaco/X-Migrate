@@ -12,4 +12,6 @@ import java.io.IOException;
 public interface ChannelInitializer {
     @NonNull
     Channel initialize() throws IOException;
+
+    void teardown() throws IOException;
 }

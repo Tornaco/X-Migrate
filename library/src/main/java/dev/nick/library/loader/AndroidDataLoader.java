@@ -1,5 +1,8 @@
 package dev.nick.library.loader;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+
 import dev.nick.library.model.android.AndroidData;
 
 /**
@@ -7,7 +10,9 @@ import dev.nick.library.model.android.AndroidData;
  * Licensed with Apache.
  */
 public abstract class AndroidDataLoader implements Loader<AndroidData> {
+
     private LoaderSource loaderSource;
+    private Context context;
 
     public AndroidDataLoader(LoaderSource loaderSource) {
         this.loaderSource = loaderSource;
@@ -15,5 +20,14 @@ public abstract class AndroidDataLoader implements Loader<AndroidData> {
 
     public LoaderSource getLoaderSource() {
         return loaderSource;
+    }
+
+    @Override
+    public void wireContext(@NonNull Context context) {
+        this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
     }
 }
